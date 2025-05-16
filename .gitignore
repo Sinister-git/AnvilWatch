@@ -1,0 +1,8 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Minecraft plugin build files
+target/
+out/
+*.jar
