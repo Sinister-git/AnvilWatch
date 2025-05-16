@@ -309,38 +309,35 @@ public class AnvilWatch extends JavaPlugin implements Listener, CommandExecutor,
 
         // Get the first slot item (original item)
         ItemStack firstSlot = anvilInventory.getFirstItem();
+        String itemType = result.getType().toString();
 
         // Prepare log entry
         String logEntry = null;
         String adminMessage = null;
+        String oldName;
         if (firstSlot != null && firstSlot.hasItemMeta()) {
             ItemMeta firstMeta = firstSlot.getItemMeta();
-            String oldName = "None";
             if (firstMeta != null && firstMeta.hasDisplayName()) {
                 Component oldNameComponent = firstMeta.displayName();
                 oldName = oldNameComponent != null
                         ? PlainTextComponentSerializer.plainText().serialize(oldNameComponent)
-                        : "None";
+                        : itemType; // Fallback to material name if display name is null
+            } else {
+                oldName = itemType; // Use material name if no custom display name
             }
-            if (!newName.equals(oldName)) {
-                String playerName = bukkitPlayer.getName();
-                String playerUUID = bukkitPlayer.getUniqueId().toString();
-                String timestamp = dateFormat.format(new Date());
-                String itemType = result.getType().toString();
-                logEntry = String.format("[%s] Player: %s (UUID: %s) renamed item (%s) from '%s' to '%s'%n",
-                        timestamp, playerName, playerUUID, itemType, oldName, newName);
-                adminMessage = String.format("[%s] %s renamed %s from '%s' to '%s'",
-                        timestamp, playerName, itemType, oldName, newName);
-            }
-        } else if (!newName.isEmpty()) {
+        } else {
+            oldName = itemType; // Use material name if no item or no meta
+        }
+
+        // Only log if the name has changed
+        if (!newName.equals(oldName)) {
             String playerName = bukkitPlayer.getName();
             String playerUUID = bukkitPlayer.getUniqueId().toString();
             String timestamp = dateFormat.format(new Date());
-            String itemType = result.getType().toString();
-            logEntry = String.format("[%s] Player: %s (UUID: %s) renamed item (%s) from 'None' to '%s'%n",
-                    timestamp, playerName, playerUUID, itemType, newName);
-            adminMessage = String.format("[%s] %s renamed %s from 'None' to '%s'",
-                    timestamp, playerName, itemType, newName);
+            logEntry = String.format("[%s] Player: %s (UUID: %s) renamed item (%s) from '%s' to '%s'%n",
+                    timestamp, playerName, playerUUID, itemType, oldName, newName);
+            adminMessage = String.format("[%s] %s renamed %s from '%s' to '%s'",
+                    timestamp, playerName, itemType, oldName, newName);
         }
 
         // Write to log and send to admins
@@ -351,9 +348,9 @@ public class AnvilWatch extends JavaPlugin implements Listener, CommandExecutor,
                     .append(Component.text(" renamed ", NamedTextColor.GRAY))
                     .append(Component.text(adminMessage.split(" ")[4], NamedTextColor.AQUA))
                     .append(Component.text(" from '", NamedTextColor.GRAY))
-                    .append(Component.text(adminMessage.contains("None") ? "None" : adminMessage.split("'")[1], NamedTextColor.RED))
+                    .append(Component.text(oldName, NamedTextColor.RED))
                     .append(Component.text("' to '", NamedTextColor.GRAY))
-                    .append(Component.text(adminMessage.split("'")[adminMessage.contains("None") ? 1 : 3], NamedTextColor.GREEN))
+                    .append(Component.text(newName, NamedTextColor.GREEN))
                     .append(Component.text("'", NamedTextColor.GRAY))
                     .build();
             getServer().getOnlinePlayers().stream()

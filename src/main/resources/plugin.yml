@@ -1,5 +1,5 @@
 name: anvilwatch
-version: '1.0'
+version: '1.1'
 main: com.citrusmc.anvilwatch.AnvilWatch
 api-version: '1.21'
 description: Logs and bans item renaming in anvils for Minecraft 1.21.4
