@@ -1,5 +1,7 @@
 # AnvilWatch
 
+![title](https://cdn.modrinth.com/data/fACp64wt/9b2acb0db56074b2f296cef94e3f34d9a749eb37_96.webp)
+
 **AnvilWatch** is a lightweight Minecraft moderation plugin that monitors and controls item renaming through anvils. Designed for server administrators, it ensures that all rename actions are tracked and that inappropriate names are blocked automatically based on a configurable banned word list.
 
 ## Features
