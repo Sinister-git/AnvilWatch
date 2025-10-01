@@ -50,7 +50,7 @@ Players renaming items with offensive, inappropriate, or disruptive names is a c
 
 ## Compatibility
 
-- **Minecraft Version:** 1.21 - 1.21.4
+- **Minecraft Version:** 1.21.*
 - **API Version:** 1.21
 - **Soft Dependencies:** None
 - **Plugin Version:** `1.0`
