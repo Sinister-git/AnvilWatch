@@ -1,8 +1,13 @@
 # AnvilWatch
 
-![title](https://cdn.modrinth.com/data/fACp64wt/9b2acb0db56074b2f296cef94e3f34d9a749eb37_96.webp)
-
 **AnvilWatch** is a lightweight Minecraft moderation plugin that monitors and controls item renaming through anvils. Designed for server administrators, it ensures that all rename actions are tracked and that inappropriate names are blocked automatically based on a configurable banned word list.
+<p align="center">
+    <a href="https://discord.gg/Evywvfz2FX">
+        <img src="https://cdn.modrinth.com/data/cached_images/5ac8884b3c4916cbac2b514220b9bb678db039b7.png" width="300">
+    </a>
+    <br>
+    <i>Please join the Discord if you have questions!</i>
+</p>
 
 ## Features
 
@@ -12,6 +17,8 @@
 - Supports permission-based bypass for trusted users
 - Provides a set of admin commands to manage banned words and plugin behavior
 - Live reloading of banned word list without restarting the server
+- **Advanced Filtering:** Supports Regular Expressions (Regex), Homoglyph normalization, and Leet-speak detection.
+- Alerts all online admins with the correct permission when a rename occurs.
 
 ## Why Use AnvilWatch?
 
@@ -21,6 +28,13 @@ Players renaming items with offensive, inappropriate, or disruptive names is a c
 - Keep a detailed log of all rename events for moderation and accountability
 - Notify staff in real time when rename attempts occur
 - Manage filters and settings easily in-game using commands
+
+## Regex & Advanced Filtering
+AnvilWatch supports powerful **Regular Expressions (Regex)** for advanced moderation. Each entry in your `BannedWords.txt` is treated as a regex pattern, allowing you to block entire families of words or specific character patterns.
+- **Case-Insensitive:** All checks are automatically case-insensitive.
+- **Pattern Matching:** Use regex to catch variations. For example, `bad.*` will block "badword", "badstuff", and "badlink".
+- **Character Sets:** Use `b[a4]dw[o0]rd` to catch leet-speak variations like "b4dw0rd".
+- **Normalizations:** The plugin automatically converts homoglyphs (look-alike characters from other alphabets) and leet-speak back to standard text before checking your filters, preventing simple bypasses.
 
 ## Commands
 
@@ -52,8 +66,7 @@ Players renaming items with offensive, inappropriate, or disruptive names is a c
 
 - **Minecraft Version:** 1.21.*
 - **API Version:** 1.21
-- **Soft Dependencies:** None
-- **Plugin Version:** `1.0`
+- **Dependencies:** None
 
 ## Getting Started
 
@@ -62,3 +75,5 @@ Players renaming items with offensive, inappropriate, or disruptive names is a c
 3. Add banned words either manually to the file or in-game using `/anvilwatch add <word>`.
 4. Assign the `anvilwatch.admin` permission to trusted staff.
 5. Monitor the log file and in-game alerts as players rename items.
+
+[![bStats Metrics](https://bstats.org/signatures/bukkit/anvilwatch.svg)](https://bstats.org/plugin/bukkit/AnvilWatch)
