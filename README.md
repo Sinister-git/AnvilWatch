@@ -1,6 +1,7 @@
 # AnvilWatch
 
-**AnvilWatch** is a lightweight Minecraft moderation plugin that monitors and controls item renaming through anvils. Designed for server administrators, it ensures that all rename actions are tracked and that inappropriate names are blocked automatically based on a configurable banned word list.
+**AnvilWatch** is a lightweight Paper plugin that monitors item renaming through anvils. It records successful rename actions, blocks names that match a configurable banned-word list, and gives administrators tools to review rename activity.
+
 <p align="center">
     <a href="https://discord.gg/Evywvfz2FX">
         <img src="https://cdn.modrinth.com/data/cached_images/5ac8884b3c4916cbac2b514220b9bb678db039b7.png" width="300">
@@ -11,69 +12,149 @@
 
 ## Features
 
-- Logs all item renames done through anvils to a log file
-- Blocks item names that contain banned words (case-insensitive)
-- Alerts all online admins with the correct permission when a rename occurs
-- Supports permission-based bypass for trusted users
-- Provides a set of admin commands to manage banned words and plugin behavior
-- Live reloading of banned word list without restarting the server
-- **Advanced Filtering:** Supports Regular Expressions (Regex), Homoglyph normalization, and Leet-speak detection.
-- Alerts all online admins with the correct permission when a rename occurs.
+- Logs successful item renames performed through anvils.
+- Blocks item names that match entries in `BannedWords.txt`.
+- Logs blocked rename attempts separately when enabled.
+- Sends live rename notifications to online administrators.
+- Supports configurable player warnings and administrator notification messages.
+- Supports chat, action-bar, or combined administrator notifications.
+- Provides `/anvilwatch recent` with combined successful and blocked activity, color-coded entries, and clickable pagination.
+- Provides `/anvilwatch check` for testing text against the current banned-word list.
+- Preserves administrator notification preferences across server restarts.
+- Supports permission-based bypass for trusted users.
+- Supports regular expressions, case-insensitive matching, homoglyph normalization, and leetspeak normalization.
+- Supports live reloading of configuration and banned words without restarting the server.
+- Includes bStats metrics with player and server telemetry.
 
-## Why Use AnvilWatch?
+## How Name Matching Works
 
-Players renaming items with offensive, inappropriate, or disruptive names is a common issue on Minecraft servers. AnvilWatch provides a simple and effective way to:
+Each non-comment line in `BannedWords.txt` is treated as a case-insensitive Java regular expression.
 
-- Automatically prevent these renames using a customizable word filter
-- Keep a detailed log of all rename events for moderation and accountability
-- Notify staff in real time when rename attempts occur
-- Manage filters and settings easily in-game using commands
+Before checking a name, AnvilWatch normalizes it by:
 
-## Regex & Advanced Filtering
-AnvilWatch supports powerful **Regular Expressions (Regex)** for advanced moderation. Each entry in your `BannedWords.txt` is treated as a regex pattern, allowing you to block entire families of words or specific character patterns.
-- **Case-Insensitive:** All checks are automatically case-insensitive.
-- **Pattern Matching:** Use regex to catch variations. For example, `bad.*` will block "badword", "badstuff", and "badlink".
-- **Character Sets:** Use `b[a4]dw[o0]rd` to catch leet-speak variations like "b4dw0rd".
-- **Normalizations:** The plugin automatically converts homoglyphs (look-alike characters from other alphabets) and leet-speak back to standard text before checking your filters, preventing simple bypasses.
+- Converting it to lowercase.
+- Converting supported look-alike characters from other alphabets.
+- Converting common leetspeak characters.
+- Removing spaces and punctuation.
+
+For example, a pattern of `badword` can catch variations such as:
+
+```text
+BADWORD
+b.a.d.w.o.r.d
+b4dw0rd
+```
+
+Because entries are regular expressions, repeated-letter variations can be covered with patterns such as:
+
+```regex
+ba+dword
+```
+
+This would match both `badword` and `baadword`.
+
+The plugin does not currently perform general fuzzy matching, typo detection, phonetic matching, or automatic repeated-letter collapsing. More complex matching behavior should be expressed explicitly with regular expressions to avoid unnecessary false positives.
 
 ## Commands
 
 | Command | Description |
 |--------|-------------|
-| `/anvilwatch help` | Displays a list of available commands |
-| `/anvilwatch reload` | Reloads the banned word list from `BannedWords.txt` |
-| `/anvilwatch add <word>` | Adds a word to the banned word list |
-| `/anvilwatch remove <word>` | Removes a word from the banned word list |
-| `/anvilwatch log <on/off>` | Toggles in-game rename log messages for the user |
+| `/anvilwatch help` | Displays the available commands. |
+| `/anvilwatch reload` | Reloads `config.yml` and `BannedWords.txt`. |
+| `/anvilwatch add <word>` | Adds a regex pattern to the banned-word list. |
+| `/anvilwatch remove <word>` | Removes a matching regex pattern from the banned-word list. |
+| `/anvilwatch log <on\|off>` | Enables or disables live administrator notifications for the command user. The preference is saved across restarts. |
+| `/anvilwatch check <text>` | Checks text against the current normalized banned-word list and reports a matching pattern when blocked. |
+| `/anvilwatch recent [page]` | Shows 10 recent successful and blocked rename entries together. The output includes clickable pagination when multiple pages exist. |
 
-**Alias:** `/anw`  
-**Usage:** `/anvilwatch <help|reload|add|remove|log> <args>`
+The `recent` command reads from both the successful and blocked log files, sorts entries by timestamp, and color-codes the player, item type, previous name, new name, and blocked status.
+
+**Alias:** `/anw`
+
+**Usage:** `/anvilwatch <help|reload|add|remove|log|check|recent> <args>`
 
 ## Permissions
 
 | Permission | Description | Default |
 |------------|-------------|---------|
-| `anvilwatch.admin` | Receive rename alerts and use plugin management commands | `op` |
-| `anvilwatch.bypass` | Allows renaming items without word filter restrictions | `false` |
+| `anvilwatch.admin` | Receive live rename notifications and use administrator commands. | `op` |
+| `anvilwatch.bypass` | Bypass banned-word restrictions when renaming items. | `false` |
 
 ## Configuration
 
-- **Banned Word List:** Managed in the `BannedWords.txt` file located in the plugin folder.
-- **Log File:** Rename events are written to a log file inside the plugin directory.
-- **No server restart required:** Changes to the banned word list from in-game are updated on the fly. Banned words added through the config file can be applied using `/anvilwatch reload`.
+The plugin generates a commented `config.yml` in its data folder. Configuration changes can be applied with `/anvilwatch reload`.
+
+### Messages
+
+Messages use MiniMessage formatting. Available placeholders are:
+
+| Placeholder | Meaning |
+|-------------|---------|
+| `<player>` | The player who used the anvil. |
+| `<item>` | The item material type. |
+| `<old>` | The previous plain-text name. |
+| `<new>` | The new plain-text name being attempted. |
+
+The configurable message options are:
+
+| Option | Description |
+|--------|-------------|
+| `messages.player-blocked` | Warning sent to a player when a rename is blocked. |
+| `messages.admin-rename` | Live notification sent for a successful rename. |
+| `messages.admin-blocked` | Live notification sent for a blocked rename attempt. |
+| `messages.admin-display` | Notification method: `CHAT`, `ACTION_BAR`, or `BOTH`. |
+
+Administrators can disable their own live notifications with `/anvilwatch log off`. This does not stop file logging.
+
+### Logging
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `logging.rename-file` | `logs/anvil_renames.log` | File for successful rename actions. |
+| `logging.blocked-file` | `logs/blocked_renames.log` | File for blocked rename attempts. |
+| `logging.log-blocked-attempts` | `true` | Whether blocked attempts are written to the blocked log. |
+
+Relative paths are resolved inside the AnvilWatch plugin folder. Absolute paths are also accepted, and missing parent directories are created automatically. Existing log files are preserved and new entries are appended.
+
+## Plugin Files
+
+The plugin data folder contains:
+
+```text
+BannedWords.txt
+config.yml
+data.yml
+logs/anvil_renames.log
+logs/blocked_renames.log
+```
+
+- `BannedWords.txt` contains the banned regex patterns.
+- `config.yml` contains messages and logging options.
+- `data.yml` stores persistent administrator notification preferences.
+- `logs/anvil_renames.log` contains successful rename actions.
+- `logs/blocked_renames.log` contains blocked attempts when enabled.
+
+Existing `BannedWords.txt` and `logs/anvil_renames.log` files are retained when upgrading from an older AnvilWatch version. New files are created only when needed.
 
 ## Compatibility
 
-- **Minecraft Version:** 1.21.*
-- **API Version:** 1.21
-- **Dependencies:** None
+- **Minecraft/Paper:** 26.2
+- **Paper API:** `26.2.build.112-stable`
+- **Java:** 25
+- **Dependencies:** Paper API, provided by the server, and bStats, shaded into the plugin JAR.
 
-## Getting Started
+## Building and Installing
 
-1. Drop the plugin JAR into your server's `plugins/` folder.
-2. Start your server to generate the config and `BannedWords.txt`.
-3. Add banned words either manually to the file or in-game using `/anvilwatch add <word>`.
-4. Assign the `anvilwatch.admin` permission to trusted staff.
-5. Monitor the log file and in-game alerts as players rename items.
+1. Build with JDK 25:
+
+   ```bash
+   mvn clean package -DskipTests
+   ```
+
+2. Copy the generated JAR from `target/anvilwatch-1.4.jar` into the server's `plugins/` folder.
+3. Stop the server before replacing an existing plugin JAR.
+4. Keep the existing AnvilWatch data folder so that the banned-word list and historical logs are preserved.
+5. Start the server and review the generated `config.yml`.
+6. Assign the `anvilwatch.admin` permission to trusted staff.
 
 [![bStats Metrics](https://bstats.org/signatures/bukkit/anvilwatch.svg)](https://bstats.org/plugin/bukkit/AnvilWatch)

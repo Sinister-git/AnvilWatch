@@ -1,0 +1,35 @@
+# AnvilWatch configuration
+#
+# Message formatting uses MiniMessage tags, such as <red>, <yellow>, and <bold>.
+# Available placeholders in all message options are:
+#   <player> - the name of the player who used the anvil
+#   <item>   - the material type of the item being renamed
+#   <old>    - the item's previous plain-text name
+#   <new>    - the new plain-text name being attempted
+#
+# Run /anvilwatch reload after editing this file to hot reload
+
+messages:
+  # Message sent to the player when their attempted rename is blocked.
+  # Leave blank if you do not want to notify players.
+  player-blocked: "<red>You cannot use that word in item names.</red>"
+
+  # Live notification sent to admins for a successful rename.
+  admin-rename: "<yellow><player></yellow> renamed <aqua><item></aqua> from '<red><old></red>' to '<green><new></green>'"
+
+  # Live notification sent to admins when a blocked rename is attempted.
+  admin-blocked: "<yellow><player></yellow> attempted to use a blocked name on <aqua><item></aqua>: '<red><new></red>'"
+
+  # Controls how admin notification messages are delivered.
+  # CHAT sends a normal chat message, ACTION_BAR uses the action bar, and BOTH uses both.
+  admin-display: CHAT
+
+logging:
+  # File for successful, completed rename actions.
+  rename-file: "logs/anvil_renames.log"
+
+  # File for blocked rename attempts. Existing entries are preserved and new entries are appended.
+  blocked-file: "logs/blocked_renames.log"
+
+  # If true, blocked attempts are written to blocked-file. If false, they are not saved,
+  log-blocked-attempts: true

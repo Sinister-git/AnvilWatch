@@ -1,13 +1,13 @@
 name: anvilwatch
 version: '${project.version}'
 main: com.citrusmc.anvilwatch.AnvilWatch
-api-version: '26.1'
-description: Logs and bans item renaming in anvils for Minecraft 26.1.*
+api-version: '26.2'
+description: Logs and bans item renaming in anvils for Minecraft 26.2.*
 author: Citric
 commands:
   anvilwatch:
     description: Manage AnvilWatch plugin
-    usage: /<command> <help|reload|add|remove|log> <args>
+    usage: /<command> <help|reload|add|remove|log|check|recent> <args>
     aliases: [anw]
 permissions:
   anvilwatch.admin:
